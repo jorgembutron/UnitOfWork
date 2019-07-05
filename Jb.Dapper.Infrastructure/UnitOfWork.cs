@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace Jb.Dapper.Infrastructure
 {
@@ -10,26 +11,28 @@ namespace Jb.Dapper.Infrastructure
     {
         private IDbConnection _dbConnection;
         private IDbTransaction _dbTransaction;
-        public Dictionary<Type, object> _repositories = new Dictionary<Type, object>();
+        public Dictionary<Type, IRepository> Repositories = new Dictionary<Type, IRepository>();
         private readonly string _connectionString;
-        
-        //public List<IRepository> _repositories = new List<IRepository>();
 
         public UnitOfWork(List<IRepository> repositories, IDbConfiguration dbConfiguration)
         {
+            _connectionString = dbConfiguration.ConnectionString;
+
             foreach (var repository in repositories)
-                _repositories.Add(repository.GetType(), repository);
+            {
+                repository.DbConnection = DbConnection;
+                Repositories.Add(repository.GetType(), repository);
+            }
 
             if (dbConfiguration == null)
                 throw new ArgumentNullException();
-
-            _connectionString = dbConfiguration.ConnectionString;
         }
 
         public IRepository Repository<T>()
         {
-            if (_repositories.ContainsKey(typeof(T)))
-                return _repositories[typeof(T)] as IRepository;
+            Type type = typeof(T);
+            if (Repositories.ContainsKey(type))
+                return Repositories[type];
 
             return null;
         }

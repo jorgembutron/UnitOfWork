@@ -15,6 +15,7 @@ namespace Jb.Data.Client.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private string temp = "";
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
@@ -24,13 +25,13 @@ namespace Jb.Data.Client.Controllers
                 new OrderRepository(), new ItemRepository()
             };
 
-            var unitOfWork = new UnitOfWork(list, new DbConfiguration("conexionecfd"));
-            
+            var unitOfWork = new UnitOfWork(list, new DbConfiguration(temp));
+
             unitOfWork.Begin();
 
-            IOrderRepository orderRepository = (IOrderRepository) unitOfWork.Repository<OrderRepository>();
+            IOrderRepository orderRepository = (IOrderRepository)unitOfWork.Repository<OrderRepository>();
             IItemRepository itemRepository = (IItemRepository)unitOfWork.Repository<ItemRepository>();
-            
+
             orderRepository.Add(new Order());
             itemRepository.Add(new Item());
 
